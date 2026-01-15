@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment | Si20k_Store</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="project.css" />
+    <link rel="stylesheet" href="payment_page.css" />
+        
+</head>
+<body>
+    <div class="notification" id="notification"></div>
+
+    <div class="checkout-container">
+        <a href="../MainPage/projectCSE310.html" class="back-home-btn" style="position: absolute; top: 1.5rem; left: 1.5rem;">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+
+        <div class="checkout-header">
+            <h1>🛒 Order Checkout</h1>
+            <p style="color: #667;">Please select items and complete the payment</p>
+        </div>
+
+        <div class="checkout-items" id="checkoutItems">
+         
+        </div>
+
+        <div class="payment-section">
+            <h3 style="text-align: center; color: #667eea; margin-bottom: 1.5rem;">
+                <i class="fas fa-qrcode"></i> Payment Information
+            </h3>
+
+            <div class="qr-code">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=Bank:VCB;Account:1234567890;Amount:0" id="qrCode" alt="QR Code">
+                <p style="color: #667; margin-top: 1rem; font-size: 0.9rem;">Scan the QR code to pay quickly</p>
+            </div>
+
+            <div class="bank-info">
+                <div class="bank-item">
+                    <span class="bank-label">Bank:</span>
+                    <span class="bank-value">
+                        MB Bank (MB)
+                    </span>
+                </div>
+                <div class="bank-item">
+                    <span class="bank-label">Account number:</span>
+                    <span class="bank-value">
+                        0397675801
+                        <button class="copy-btn" onclick="copyToClipboard('1234567890')">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </span>
+                </div>
+                <div class="bank-item">
+                    <span class="bank-label">Account holder:</span>
+                    <span class="bank-value">SI20K STORE</span>
+                </div>
+                <div class="bank-item">
+                    <span class="bank-label">Payment content:</span>
+                    <span class="bank-value" id="transferContent">
+                        SI20K ORDER
+                        <button class="copy-btn" onclick="copyToClipboard(document.getElementById('transferContent').innerText.split('Copy')[0].trim())">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="total-section">
+            <div class="total-row">
+                <span>Selected items:</span>
+                <span id="selectedCount">0</span>
+            </div>
+            <div class="total-row">
+                <span>Subtotal:</span>
+                <span id="subtotal">0₫</span>
+            </div>
+            <div class="total-row" id="discountRow" style="display: none;">
+                <span>Discount:</span>
+                <span id="discount">0₫</span>
+            </div>
+            <div class="total-row main">
+                <span>Total:</span>
+                <span id="totalAmount">0₫</span>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-back" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Go Back
+            </button>
+            <button class="btn-confirm" id="confirmBtn" onclick="confirmPayment()" disabled>
+                <i class="fas fa-check-circle"></i> Confirm Payment
+            </button>
+        </div>
+
+        <p class="warning-text">
+            ⚠️ Note: After transferring, please click "Confirm Payment" to complete your order
+        </p>
+    </div>
+
+    <script>
+        let checkoutData = null;
+        let selectedItems = [];
+
+        function init() {
+            const data = localStorage.getItem('checkoutData');
+            if (!data) {
+                alert('Order information not found!');
+                window.location.href = 'projectCSE310.html';
+                return;
+            }
+
+            checkoutData = JSON.parse(data);
+            renderCheckoutItems();
+        }
+
+        function renderCheckoutItems() {
+            const container = document.getElementById('checkoutItems');
+            container.innerHTML = checkoutData.cart.map((item, index) => `
+                <div class="checkout-item" id="item-${index}">
+                    <input type="checkbox" class="item-checkbox" onchange="toggleItem(${index})" id="checkbox-${index}">
+                    <div class="item-image"> <img src="${item.img}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;"></div>
+                    <div class="item-info">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-quantity">Quantity: ${item.quantity}</div>
+                    </div>
+                    <div class="item-price">${(item.price * item.quantity).toLocaleString('vi-VN')}₫</div>
+                </div>
+            `).join('');
+
+            updateTotal();
+        }
+
+        function toggleItem(index) {
+            const checkbox = document.getElementById(`checkbox-${index}`);
+            const itemDiv = document.getElementById(`item-${index}`);
+
+            if (checkbox.checked) {
+                selectedItems.push(index);
+                itemDiv.classList.add('selected');
+            } else {
+                selectedItems = selectedItems.filter(i => i !== index);
+                itemDiv.classList.remove('selected');
+            }
+
+            updateTotal();
+        }
+
+        function updateTotal() {
+            let subtotal = 0;
+            selectedItems.forEach(index => {
+                const item = checkoutData.cart[index];
+                subtotal += item.price * item.quantity;
+            });
+
+            let discount = 0;
+            if (checkoutData.selectedVoucher && selectedItems.length > 0) {
+                if (checkoutData.selectedVoucher.discount > 100) {
+                    discount = checkoutData.selectedVoucher.discount;
+                } else {
+                    discount = subtotal * (checkoutData.selectedVoucher.discount / 100);
+                    if (discount > 500000) discount = 500000;
+                }
+            }
+
+            const total = subtotal - discount;
+
+            document.getElementById('selectedCount').textContent = selectedItems.length;
+            document.getElementById('subtotal').textContent = subtotal.toLocaleString('vi-VN') + '₫';
+            document.getElementById('discount').textContent = '-' + discount.toLocaleString('vi-VN') + '₫';
+            document.getElementById('totalAmount').textContent = total.toLocaleString('vi-VN') + '₫';
+
+            document.getElementById('discountRow').style.display = discount > 0 ? 'flex' : 'none';
+            document.getElementById('confirmBtn').disabled = selectedItems.length === 0;
+
+            //  QR code
+            const qrData = `Bank:MB;Account:0397675801;Amount:${total};Content:SI20K ORDER`;
+            const qrElement = document.getElementById('qrCode');
+            qrElement.src = '../images/qr.png';
+            qrElement.style.width = '250px';
+            qrElement.style.height = '250px';
+            qrElement.style.objectFit = 'cover';
+            qrElement.style.borderRadius = '8px';
+
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Copied: ' + text, 'success');
+            }).catch(() => {
+                showNotification('Unable to copy!', 'error');
+            });
+        }
+
+        function goBack() {
+            window.location.href = '../MainPage/projectCSE310.html';
+        }
+
+        function confirmPayment() {
+            if (selectedItems.length === 0) {
+                showNotification('Please select at least one item!', 'error');
+                return;
+            }
+
+            let products = JSON.parse(localStorage.getItem('products') || '[]');
+            
+            if (products.length === 0) {
+                checkoutData.cart.forEach(item => {
+                    products.push({
+                        id: item.id,
+                        stock: item.stock || 10,
+                        sold: item.sold || 0
+                    });
+                });
+            }
+
+            const purchasedItems = [];
+            selectedItems.forEach(index => {
+                const item = checkoutData.cart[index];
+                const productIndex = products.findIndex(p => p.id === item.id);
+                
+                if (productIndex !== -1) {
+                    products[productIndex].stock -= item.quantity;
+                    products[productIndex].sold = (products[productIndex].sold || 0) + item.quantity;
+                } else {
+                    products.push({
+                        id: item.id,
+                        stock: (item.stock || 10) - item.quantity,
+                        sold: (item.sold || 0) + item.quantity
+                    });
+                }
+                purchasedItems.push(item);
+            });
+
+            localStorage.setItem('products', JSON.stringify(products));
+
+            checkoutData.cart = checkoutData.cart.filter((item, index) => !selectedItems.includes(index));
+            localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+
+            let subtotal = 0;
+            purchasedItems.forEach(item => {
+                subtotal += item.price * item.quantity;
+            });
+
+            let discount = 0;
+            if (checkoutData.selectedVoucher) {
+                if (checkoutData.selectedVoucher.discount > 100) {
+                    discount = checkoutData.selectedVoucher.discount;
+                } else {
+                    discount = subtotal * (checkoutData.selectedVoucher.discount / 100);
+                    if (discount > 500000) discount = 500000;
+                }
+            }
+
+            const total = subtotal - discount;
+            const earnPoints = Math.floor(total / 1000);
+
+
+            if (checkoutData.user) {
+                checkoutData.user.points = (checkoutData.user.points || 0) + earnPoints;
+                
+                if (checkoutData.user.role === 'guest' && checkoutData.user.email !== 'guest@si20k.com') {
+                    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                    const userIndex = users.findIndex(u => u.email === checkoutData.user.email);
+                    if (userIndex !== -1) {
+                        users[userIndex].points = checkoutData.user.points;
+                        localStorage.setItem('registeredUsers', JSON.stringify(users));
+                    }
+                }
+            }
+
+            alert(`✅ Payment successful!\n\n🎉 You earned ${earnPoints} points\n💎 Total points: ${checkoutData.user.points || 0}`);
+            
+           
+            window.location.href = '../MainPage/projectCSE310.html';
+        }
+
+        function showNotification(message, type) {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.className = 'notification show ' + type;
+
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 3000);
+        }
+
+  
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous" />
+    <link rel="stylesheet" href="project.css" />
+    <title>Si20k - Secondhand Clothing Store</title>
+</head>
+
+<body>
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo" onclick="scrollToSection('home')">
+                <img src="../images//logo.png" alt="Logo" />
+                <span id="name">Si20k_Store</span>
+            </div>
+            <div class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('show')" >
+                <i class="fas fa-bars"></i>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" onclick="scrollToSection('home')">Home</a></li>
+                <li>
+                    <a href="#products">Products</a>
+                    <ul class="dropdown">
+                        <li><a href="#products" onclick="scrollToSection('all-products')">All Products</a></li>
+                        <li><a href="#" onclick="openCategoryModal('aokhoac')">Jackets</a></li>
+                        <li><a href="#" onclick="openCategoryModal('quan')">Pants</a></li>
+                        <li><a href="#" onclick="openCategoryModal('ao')">Shirts</a></li>
+                    </ul>
+                </li>
+                <li><a href="#about" onclick="scrollToSection('about')">About Us</a></li>
+                <li><a href="#contact" onclick="scrollToSection('contact')">Contact</a></li>
+            </ul>
+            <div class="user-section">
+                <div class="user-info" id="userInfo">
+                    <span id="userName" onclick="goToProfile()" style="cursor: pointer;"></span>
+                    <span class="points-badge"><img src="../images//diamond.png" alt="Diamond" class="title-icon"><span
+                            id="userPoints">0</span></span>
+                    <button class="login-btn" onclick="logout()">Logout</button>
+                </div>
+                <button class="login-btn" id="loginBtn" onclick="showAuthModal()">Login</button>
+                <div class="cart-icon position-relative" onclick="toggleCart()" style="cursor: pointer;">
+                    <i class="fas fa-shopping-cart fa-lg"></i>
+                    <span
+                        class="cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        id="cartCount">0</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <h1>Affordable Fashion</h1>
+        <p>Choose freely from products priced at just 20k</p>
+        <div class="search-bar">
+            <input type="text" placeholder="Search products..." id="searchInput">
+            <button onclick="searchProducts()">Search</button>
+        </div>
+    </section>
+
+    <!-- Sale Products Section-->
+    <section class="products-section" id="sale-products">
+        <h2 class="sale-section-title">
+            <img src="../images//fire.gif" alt="Fire" class="title-icon"> Super Sale Items <img src="../images//fire.gif"
+                alt="Fire" class="title-icon">
+        </h2>
+        <div class="products-grid" id="productsGrid"></div>
+    </section>
+    <!-- Best Selling Products Section -->
+    <section class="products-section py-5 bg-light" id="best-selling">
+        <div class="rgb-border-container">
+            <div class="container">
+                <h2 class="text-center mb-5 bestselling-section-title">
+                    <img src="../images//star.png" alt="Star" class="title-icon">
+                    Best Selling Products
+                    <img src="../images//star.png" alt="Star" class="title-icon">
+                </h2>
+
+                <div id="bestSellingCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+                    <div class="carousel-inner" id="bestSellingCarouselInner">
+
+                    </div>
+
+                    <!-- prev/next btn -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#bestSellingCarousel"
+                        data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#bestSellingCarousel"
+                        data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+
+                    <!-- Dots -->
+                    <div class="carousel-indicators" id="bestSellingIndicators"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- All Products Section with Tabs -->
+    <section class="menu-section" id="all-products" style="background: #f8f9fa; padding: 80px 0;">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="menu-section-title" style="color: #667eea; text-shadow: none;"> = All Products =</h2>
+                <p style="color: #667; font-size: 1.1rem;">Explore our full collection</p>
+            </div>
+
+            <div class="row">
+                <!-- Tabs Navigation -->
+                <div class="col-lg-8">
+                    <!-- Bootstrap Tabs -->
+                    <ul class="nav nav-tabs justify-content-center mb-4" id="productTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="aokhoac-tab" data-bs-toggle="tab"
+                                data-bs-target="#aokhoac-content" type="button" role="tab"
+                                aria-controls="aokhoac-content" aria-selected="true">
+                                Jackets
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="quan-tab" data-bs-toggle="tab" data-bs-target="#quan-content"
+                                type="button" role="tab" aria-controls="quan-content" aria-selected="false">
+                                Pants
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="aothun-tab" data-bs-toggle="tab"
+                                data-bs-target="#aothun-content" type="button" role="tab" aria-controls="aothun-content"
+                                aria-selected="false">
+                                T-Shirts
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="productTabContent">
+                        <!-- Jackets Tab -->
+                        <div class="tab-pane fade show active" id="aokhoac-content" role="tabpanel"
+                            aria-labelledby="aokhoac-tab">
+                            <div id="aokhoac-products"></div>
+                        </div>
+
+                        <!-- Pants Tab -->
+                        <div class="tab-pane fade" id="quan-content" role="tabpanel" aria-labelledby="quan-tab">
+                            <div id="quan-products"></div>
+                        </div>
+
+                        <!-- T-Shirts Tab -->
+                        <div class="tab-pane fade" id="aothun-content" role="tabpanel" aria-labelledby="aothun-tab">
+                            <div id="ao-products"></div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Display Image Column -->
+                <div class="col-lg-4 d-none d-lg-block">
+                    <div class="menu-display" style="position: sticky; top: 100px;">
+                        <img id="category-display-image"
+                            src="https://images.unsplash.com/photo-1490114538077-0a7f8cb49891?w=400"
+                            alt="Category Display" class="img-fluid"
+                            style="border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); width: 100%; height: 500px; object-fit: cover;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Category Modal -->
+    <div class="category-modal" id="categoryModal">
+        <div class="category-modal-content">
+            <div class="category-modal-header">
+                <h2 id="categoryTitle">Product Category</h2>
+                <div class="modal-close-btn" onclick="closeCategoryModal()"><i class="fas fa-times"></i></div>
+            </div>
+            <div class="category-products-grid" id="categoryProductsGrid"></div>
+            
+        </div>
+    </div>
+
+
+    <!-- Product Detail Modal -->
+    <div class="product-detail-modal" id="productDetailModal">
+        <div class="product-detail-content">
+            <div class="product-detail-header">
+                <h2>Product Details</h2>
+                <div class="modal-close-btn" onclick="closeProductDetail()"><i class="fas fa-times"></i></div>
+            </div>
+            <div class="product-detail-body">
+                <div class="product-images" id="product-images"></div>
+                <div class="product-detail-info">
+                    <h3 class="product-detail-name" id="detailName"></h3>
+                    <p class="product-detail-desc" id="detailDesc"></p>
+                    <div class="product-detail-price" id="detailPrice"></div>
+                    <button class="add-to-cart-btn" onclick="addToCartFromDetail()">
+                        <i class="fas fa-shopping-cart me-2"></i> Add to Cart</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- About Us Section -->
+    <section class="about_us" id="about">
+        <div class="container py-5">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5><b>Who are we?</b></h5>
+                    <h1>Si20k_Store</h1>
+                    <p>
+                        <b>Si20k_Store</b> is a secondhand fashion shop offering affordable quality items such as jackets,
+                        jeans, t-shirts... starting from just 20,000 VND. We are committed to providing customers with a
+                        budget-friendly shopping experience, diverse designs, youthful styles, and eco-friendly choices.
+                    </p>
+                    <p>
+                        Our mission is to help you confidently express your style while contributing to environmental
+                        protection through fashion reuse. Visit Si20k_Store to discover unique pieces at great prices!
+                    </p>
+                </div>
+                <div class="col-md-3" id="aboutImage1">
+                    <img src="../images//woman.png" class="img-fluid rounded shadow" alt="Women">
+                </div>
+                <div class="col-md-3" id="aboutImage2">
+                    <img src="../images//man.png" class="img-fluid rounded shadow" alt="Men">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container-fluid">
+            <h3 class="section-title">Contact</h3>
+            <h2>Get in touch through these channels</h2>
+
+            <div class="media-group">
+                <div class="row">
+                    <div class="col-md-3 col-12">
+                        <div class="media">
+                            <div class="media-symbol">
+                                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                            </div>
+                            <div class="media-content">
+                                <h6 class="mt-0">Address</h6>
+                                <p>HL601 Road, Binh Duong</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-12">
+                        <div class="media">
+                            <div class="media-symbol">
+                                <i class="fa fa-phone" aria-hidden="true"></i>
+                            </div>
+                            <div class="media-content">
+                                <h6 class="mt-0">Phone</h6>
+                                <p>(+84)123 456 789</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-12">
+                        <div class="media">
+                            <div class="media-symbol">
+                                <i class="fa fa-envelope" aria-hidden="true"></i>
+                            </div>
+                            <div class="media-content">
+                                <h6 class="mt-0">Email</h6>
+                                <p>si20k@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-12">
+                        <div class="media">
+                            <div class="media-symbol">
+                                <i class="fa fa-share" aria-hidden="true"></i>
+                            </div>
+                            <div class="media-content">
+                                <h6 class="mt-0">Follow us</h6>
+                                <div class="media-social-network">
+                                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                                    <a href="#"><i class="fab fa-twitter"></i></a>
+                                    <a href="#"><i class="fab fa-instagram"></i></a>
+                                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                                    <a
+                                        href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1"><i
+                                            class="fab fa-youtube"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-form-map">
+                <div class="map">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3916.9551916172304!2d106.66214001242949!3d10.966754855605524!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174d1cf33b4b70f%3A0xd79115a44f18b7a7!2zUXXhuq1uIFTGsCBOaMOiIDI!5e0!3m2!1svi!2s!4v1748623174536!5m2!1svi!2s"
+                        allowfullscreen="" loading="lazy">
+                    </iframe>
+                </div>
+                <div class="contact-form">
+                    <form id="contactForm" v>
+                        <div class="form-group1">
+                            <input type="text" placeholder="Your name" required>
+                        </div>
+                        <div class="form-group1">
+                            <input type="email" placeholder="Your email" required>
+                        </div>
+                        <div class="form-group1">
+                            <input type="text" placeholder="Subject">
+                        </div>
+                        <div class="form-group1">
+                            <textarea placeholder="Message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn_send" onclick="submitContactForm()">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Floating Cart -->
+    <div class="floating-cart btn btn-danger shadow-lg" onclick="toggleCart()">
+        <i class="fas fa-shopping-cart me-2"></i>
+        View cart (<span id="floatingCartCount">0</span>)
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAuthModal()">X</span>
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+                    <button class="auth-tab" onclick="switchTab('register')">Register</button>
+                </div>
+
+                <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label>Email or phone number</label>
+                        <input type="text" required placeholder="example@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="form-submit">Login</button>
+                </form>
+
+                <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label>Full name</label>
+                        <input type="text" required placeholder="Nguyen Van A">
+                    </div>
+                    <div class="form-group">
+                        <label>Email or phone number</label>
+                        <input type="text" required placeholder="example@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" required placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm password</label>
+                        <input type="password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="form-submit">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="toggleCart()">
+                <i class="fas fa-times"></i>
+            </span>
+            <h2 style="margin-bottom: 1rem; color: #667eea;">Your Cart</h2>
+
+            <div class="points-display" id="pointsDisplay" style="display: none;">
+                <h3> <img src="../images//diamond.png" alt="Diamond" class="title-icon"><span id="cartUserPoints">0</span> points
+                </h3>
+                <p>You will earn <span id="earnPoints">0</span> points from this order!</p>
+            </div>
+
+            <div id="cartItems"></div>
+
+            <div class="voucher-section">
+                <h4 style="margin-bottom: 0.5rem;">
+                    <i class="fas fa-ticket-alt text-danger me-2"></i>
+                    Vouchers & Discount Codes
+                </h4>
+                <div class="voucher-input">
+                    <input type="text" id="voucherInput" placeholder="Enter voucher code">
+                    <button onclick="applyVoucher()">Apply</button>
+                </div>
+                <div class="voucher-list" id="voucherList"></div>
+            </div>
+
+            <div class="cart-total">
+                <div
+                    style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 1rem; color: #666;">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">0đ</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 1rem; color: #e74c3c;"
+                    id="discountRow">
+                    <span>Discount:</span>
+                    <span id="discount">0đ</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Total:</span>
+                    <span id="cartTotal">0đ</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="checkout()">
+                Checkout
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="project.js"></script>
+</body>
+
+</html>
